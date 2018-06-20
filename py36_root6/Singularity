@@ -1,0 +1,87 @@
+# based on https://github.com/root-project/root-docker/blob/master/centos/Dockerfile
+bootstrap:docker
+From:centos/python-36-centos7
+
+%files
+packages.txt packages.txt
+
+%post
+yum update -q -y
+yum install -y epel-release
+yum install -y $(cat packages.txt)
+yum install -y python36-devel python36-numpy numpy
+localedef -i en_US -f UTF-8 en_US.UTF-8
+rm -f /packages
+
+/opt/app-root/bin/pip install numpy scipy
+
+# git clone https://github.com/root-project/root /usr/src/root
+
+# make sure to compile the latest release / tag
+mkdir /usr/src/root
+cd /usr/src/root
+wget https://root.cern.ch/download/root_v6.14.00.source.tar.gz
+tar -xvzf root_v6.14.00.source.tar.gz 
+
+source_dir=/usr/src/root/root-6.14.00
+
+# latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+# git checkout $latestTag
+
+# cmake3 /usr/src/root \
+cmake3 $source_dir \
+    -Dall=ON \
+    -Dcxx11=ON \
+    -Dfail-on-missing=ON \
+    -Dgnuinstall=ON \
+    -Drpath=ON \
+    -Dbuiltin_afterimage=OFF \
+    -Dbuiltin_ftgl=OFF \
+    -Dbuiltin_gl2ps=OFF \
+    -Dbuiltin_glew=OFF \
+    -Dbuiltin_tbb=ON \
+    -Dbuiltin_unuran=OFF \
+    -Dbuiltin_vdt=ON \
+    -Dbuiltin_veccore=ON \
+    -Dbuiltin_xrootd=ON \
+    -Darrow=OFF \
+    -Dcastor=OFF \
+    -Dchirp=OFF \
+    -Dgeocad=OFF \
+    -Dglite=OFF \
+    -Dhdfs=OFF \
+    -Dmonalisa=OFF \
+    -Doracle=OFF \
+    -Dpythia6=OFF \
+    -Drfio=OFF \
+    -Droot7=OFF \
+    -Dsapdb=OFF \
+    -Dsrp=OFF \
+    -Dvc=OFF \
+    -Droofit=ON\
+    -Dminuit2=ON\
+    -DPYTHON_EXECUTABLE=/opt/app-root/bin/python
+cmake3 --build . -- -j 20
+cmake3 --build . --target install
+rm -rf /usr/src/root
+cd
+/opt/app-root/bin/pip install \
+    root-numpy \
+    pandas \
+    jupyter \
+    matplotlib \
+    theano \
+    scikit-learn \
+    keras \
+    tensorflow \
+    seaborn \
+    xgboost \
+    root_pandas \
+    tqdm
+
+mkdir -p /afs
+mkdir -p /eos
+
+%environment
+PYTHONPATH=/usr/local/lib/root:$PYTHONPATH
+export PYTHONPATH
