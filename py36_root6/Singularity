@@ -9,7 +9,7 @@ packages.txt packages.txt
 yum update -q -y
 yum install -y epel-release
 yum install -y $(cat packages.txt)
-yum install -y python36-devel python36-numpy numpy
+yum install -y python36-devel python36-numpy numpy mesa-dri-drivers mesa-dri-drivers xorg-x11-xauth
 localedef -i en_US -f UTF-8 en_US.UTF-8
 rm -f /packages
 
@@ -81,6 +81,7 @@ cd
 
 mkdir -p /afs
 mkdir -p /eos
+mkdir -p /net
 
 %environment
 PYTHONPATH=/usr/local/lib/root:$PYTHONPATH
