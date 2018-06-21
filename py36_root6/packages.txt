@@ -45,10 +45,6 @@ openssl-devel
 pcre-devel
 postgresql-devel
 pythia8-devel
-python
-python-devel
-python34-devel
-python34-numpy
 qt-devel
 readline-devel
 redhat-lsb-core
@@ -62,3 +58,6 @@ xrootd-server-devel
 xxhash-devel
 xz-devel
 zlib-devel
+wget
+mesa-dri-drivers
+xorg-x11-xauth

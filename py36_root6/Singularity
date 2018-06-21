@@ -1,6 +1,10 @@
 # based on https://github.com/root-project/root-docker/blob/master/centos/Dockerfile
-bootstrap:docker
-From:centos/python-36-centos7
+# bootstrap:docker
+# From:centos/python-36-centos7
+Bootstrap: yum
+OSVersion: 7
+MirrorURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/os/$basearch/ 
+Include: yum
 
 %files
 packages.txt packages.txt
@@ -9,26 +13,33 @@ packages.txt packages.txt
 yum update -q -y
 yum install -y epel-release
 yum install -y $(cat packages.txt)
-yum install -y python36-devel python36-numpy numpy mesa-dri-drivers mesa-dri-drivers xorg-x11-xauth
 localedef -i en_US -f UTF-8 en_US.UTF-8
 rm -f /packages
 
-/opt/app-root/bin/pip install numpy scipy
+INSTALL_PKGS="rh-python36 rh-python36-python-devel rh-python36-python-setuptools rh-python36-python-pip rh-python36-python-pip rh-python36-numpy nss_wrapper \
+        httpd24 httpd24-httpd-devel httpd24-mod_ssl httpd24-mod_auth_kerb httpd24-mod_ldap \
+        httpd24-mod_session atlas-devel gcc-gfortran libffi-devel libtool-ltdl enchant" && \
+    yum install -y centos-release-scl && \
+    yum -y --setopt=tsflags=nodocs install --enablerepo=centosplus $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    # Remove centos-logos (httpd dependency) to keep image size smaller.
+    rpm -e --nodeps centos-logos && \
+    yum -y clean all --enablerepo='*'
+rm -rf /var/cache/yum
+ 
+export PATH=/opt/rh/rh-python36/root/usr/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/opt/rh/rh-python36/root/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export MANPATH=/opt/rh/rh-python36/root/usr/share/man:$MANPATH
+export PKG_CONFIG_PATH=/opt/rh/rh-python36/root/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
+export XDG_DATA_DIRS="/opt/rh/rh-python36/root/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 
-# git clone https://github.com/root-project/root /usr/src/root
-
-# make sure to compile the latest release / tag
 mkdir /usr/src/root
 cd /usr/src/root
-wget https://root.cern.ch/download/root_v6.14.00.source.tar.gz
+/usr/bin/wget https://root.cern.ch/download/root_v6.14.00.source.tar.gz
 tar -xvzf root_v6.14.00.source.tar.gz 
 
 source_dir=/usr/src/root/root-6.14.00
 
-# latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-# git checkout $latestTag
-
-# cmake3 /usr/src/root \
 cmake3 $source_dir \
     -Dall=ON \
     -Dcxx11=ON \
@@ -60,12 +71,13 @@ cmake3 $source_dir \
     -Dvc=OFF \
     -Droofit=ON\
     -Dminuit2=ON\
-    -DPYTHON_EXECUTABLE=/opt/app-root/bin/python
+    -DPYTHON_EXECUTABLE=/opt/rh/rh-python36/root/usr/bin/python3.6
 cmake3 --build . -- -j 20
 cmake3 --build . --target install
 rm -rf /usr/src/root
 cd
-/opt/app-root/bin/pip install \
+/opt/rh/rh-python36/root/usr/bin/pip install \
+    scipy \
     root-numpy \
     pandas \
     jupyter \
@@ -82,7 +94,13 @@ cd
 mkdir -p /afs
 mkdir -p /eos
 mkdir -p /net
+mkdir -p /fhgfs
 
 %environment
 PYTHONPATH=/usr/local/lib/root:$PYTHONPATH
 export PYTHONPATH
+export PATH=/opt/rh/rh-python36/root/usr/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/opt/rh/rh-python36/root/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export MANPATH=/opt/rh/rh-python36/root/usr/share/man:$MANPATH
+export PKG_CONFIG_PATH=/opt/rh/rh-python36/root/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}
+export XDG_DATA_DIRS="/opt/rh/rh-python36/root/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
