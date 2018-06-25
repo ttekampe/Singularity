@@ -1,2 +1,3 @@
-# Singularity
-My singularity recipes
+- py36_root6
+   - CentOS 7 image with ROOT 6.14 compiled with python 3.6, xrootd and Minuit2
+   - Several data analysis and machine learning python libraries

@@ -80,6 +80,7 @@ cd
     scipy \
     root-numpy \
     pandas \
+    jupyterlab \
     jupyter \
     matplotlib \
     theano \
