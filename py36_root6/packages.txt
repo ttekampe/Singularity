@@ -62,3 +62,4 @@ wget
 mesa-dri-drivers
 xorg-x11-xauth
 zsh
+tmux
