@@ -62,4 +62,11 @@ wget
 mesa-dri-drivers
 xorg-x11-xauth
 zsh
-tmux
+texlive
+texlive-latex
+texlive-xetex
+texlive-collection-latex
+texlive-collection-latexrecommended
+texlive-xetex-def
+texlive-collection-xetex
+texlive-collection-latexextra
